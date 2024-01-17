@@ -1,0 +1,43 @@
+
+local function cloneInstance(original)
+    local success, clone = pcall(function()
+        local instanceClone = Instance.new(original.ClassName)
+        instanceClone.Name = original.Name
+        return instanceClone
+    end)
+
+    if success then
+        return clone
+    else
+        warn("Failed to clone instance:", original.ClassName, original.Name)
+        return nil
+    end
+end
+local function cloneModelWithDelay(original, parentClone)
+    local clone = cloneInstance(original)
+
+    if clone then
+        if parentClone then
+            clone.Parent = parentClone
+        end
+
+        for _, child in pairs(original:GetChildren()) do
+            local childClone = cloneModelWithDelay(child, clone)
+            if childClone then
+                childClone.Parent = clone
+            end
+            print("Cloned", child.Name)
+            wait()
+        end
+    end
+
+    return clone
+end
+
+local rootModel = workspace.MainModule
+
+local clonedModel = Instance.new("Model")
+clonedModel.Name = "ClonedModel"
+clonedModel.Parent = game.Workspace
+
+cloneModelWithDelay(rootModel, clonedModel)
